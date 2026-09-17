@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0e17">
+  <title>Achievement Atlas</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0e17;
+      --panel: #131827;
+      --panel2: #192034;
+      --line: #2a334a;
+      --text: #eef2ff;
+      --muted: #9aa8c3;
+      --accent: #ab94ff;
+      --green: #73e6bb;
+      --red: #ff9baf;
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 85% 0%, #33245265, transparent 45%),
+        radial-gradient(ellipse at 0% 35%, #14364b45, transparent 45%),
+        var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    button, a, input, select, textarea {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button {
+      cursor: pointer;
+      color: var(--text);
+      border: 1px solid var(--line);
+      background: var(--panel2);
+      padding: 12px 16px;
+      border-radius: 13px;
+    }
+
+    button:hover { border-color: var(--accent); }
+    button:disabled { opacity: .5; cursor: wait; }
+
+    button:focus-visible, a:focus-visible,
+    input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    input, select, textarea {
+      min-width: 0;
+      width: 100%;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #0b101d;
+      padding: 13px;
+    }
+
+    textarea { resize: vertical; }
+    a { color: var(--accent); overflow-wrap: anywhere; }
+    p { line-height: 1.65; }
+    h1, h2, h3 { letter-spacing: -.035em; }
+    h2 { margin-top: 0; }
+
+    .shell { max-width: 1360px; margin: auto; padding: 24px; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 25px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand { font-weight: 850; letter-spacing: -.04em; font-size: 22px; }
+    .brand span { color: var(--accent); }
+    .muted { color: var(--muted); }
+    .small { font-size: 13px; }
+    .eyebrow { color: var(--green); font-size: 12px; letter-spacing: .18em; }
+
+    .hero { padding: 48px 0 24px; }
+    .hero h1 { font-size: clamp(36px, 6vw, 66px); margin: 12px 0; line-height: 1.07; }
+    .hero h1 span { color: var(--accent); }
+    .hero p { max-width: 630px; color: var(--muted); }
+
+    .panel {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, #192034c9, #111624ed);
+    }
+
+    .row { display: flex; align-items: center; gap: 12px; }
+    .wrap { flex-wrap: wrap; }
+    .grow { flex: 1; min-width: 180px; }
+    .primary { background: var(--accent); color: #171025; border-color: transparent; font-weight: 750; }
+    .space { margin-top: 22px; }
+    .hidden { display: none !important; }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    label { display: block; font-size: 13px; color: var(--muted); }
+    label input, label select { margin-top: 7px; }
+
+    #status { min-height: 26px; margin: 14px 0; color: var(--green); }
+    #status.error { color: var(--red); }
+
+    .profile { margin-bottom: 20px; }
+    .avatar { width: 48px; height: 48px; border-radius: 15px; }
+    .stats { display: flex; gap: 10px; flex-wrap: wrap; margin: 16px 0; }
+
+    .pill {
+      display: inline-block;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 100px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr 210px;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .games {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .game {
+      padding: 0;
+      text-align: left;
+      overflow: hidden;
+      border-radius: 18px;
+      background: var(--panel);
+      transition: transform .18s, border-color .18s;
+    }
+
+    .game:hover { transform: translateY(-4px); }
+    .game img { width: 100%; aspect-ratio: 460/215; object-fit: cover; display: block; background: var(--panel2); }
+    .game .copy { padding: 16px; }
+    .game h3 { margin: 0 0 8px; font-size: 17px; }
+    .game p { margin: 0; font-size: 13px; color: var(--muted); }
+
+    .detail-top { display: flex; justify-content: space-between; align-items: center; gap: 15px; }
+    .tabs { display: flex; gap: 8px; margin: 22px 0; flex-wrap: wrap; }
+    .tabs button.active { border-color: var(--accent); color: var(--accent); }
+
+    progress { width: 100%; height: 10px; accent-color: var(--accent); }
+    .achievement-list { display: grid; gap: 12px; }
+
+    .achievement {
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+      padding: 16px;
+      background: #111624;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+
+    .achievement.done { border-color: #30594e; }
+    .achievement img { width: 54px; height: 54px; border-radius: 12px; }
+    .achievement .body { flex: 1; min-width: 0; }
+    .achievement h3 { margin: 0 0 7px; font-size: 16px; }
+    .achievement p { margin: 0 0 10px; color: var(--muted); font-size: 14px; }
+    .achievement button { font-size: 12px; padding: 9px 12px; }
+
+    .guide { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 10px; }
+    .guide p { white-space: pre-wrap; }
+
+    .chat-log {
+      min-height: 180px;
+      max-height: 550px;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 16px 0;
+    }
+
+    .bubble {
+      max-width: 92%;
+      padding: 15px 18px;
+      border-radius: 18px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      line-height: 1.65;
+      background: #202840;
+      align-self: flex-start;
+    }
+
+    .bubble.user { align-self: flex-end; background: #493c75; }
+    .bubble.error { color: var(--red); }
+    .bubble a { display: block; margin-top: 8px; font-size: 12px; }
+    .chat-form { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 12px; }
+
+    .map-tools { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 15px; }
+    .map-tools select { flex: 1; min-width: 160px; }
+    .map-viewport { overflow: auto; max-height: 70vh; border-radius: 14px; background: #090c13; border: 1px solid var(--line); }
+    .map-stage { position: relative; width: 100%; }
+    .map-stage > img { display: block; width: 100%; height: auto; }
+
+    .marker {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      padding: 0;
+      background: #ab94ff;
+      color: #100a20;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 14px #000a;
+      font-weight: 800;
+    }
+
+    .marker.found { background: var(--green); }
+    #markerDetail { margin-top: 15px; }
+    footer { color: var(--muted); padding: 35px 0 10px; font-size: 12px; }
+
+    @media (max-width: 640px) {
+      .shell { padding: 16px; }
+      .hero { padding-top: 32px; }
+      .settings-grid, .toolbar { grid-template-columns: 1fr; }
+      .panel { padding: 16px; }
+      .games { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .game .copy { padding: 11px; }
+      .game h3 { font-size: 14px; }
+      .game p { font-size: 11px; }
+      .achievement { gap: 10px; padding: 12px; }
+      .achievement img { width: 42px; height: 42px; }
+      .chat-form { grid-template-columns: 1fr; }
+      .bubble { max-width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="shell">
+    <header>
+      <div class="brand">achievement<span>atlas.</span></div>
+      <span class="pill">Steam + AI</span>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">KÜTÜPHANENDEN %100'E</div>
+      <h1>Her başarımın<br><span>bir yolu var.</span></h1>
+      <p>Oyunlarını keşfet, eksik başarımlarını gör ve kaynaklı rehberlerle ilerle. Bir sonraki hedefini buradan seç.</p>
+    </section>
+
+    <section class="panel">
+      <details id="settings">
+        <summary>Bağlantı ayarları</summary>
+        <div class="settings-grid">
+          <label>
+            Cloudflare Worker adresi
+            <input id="apiUrl" type="url" placeholder="https://achievement-atlas.hesabin.workers.dev">
+          </label>
+          <label>
+            Kişisel erişim parolası
+            <input id="accessToken" type="password" autocomplete="off" placeholder="ACCESS_TOKEN değeri">
+          </label>
+        </div>
+        <p class="small muted">
+          Parola yalnızca bu sayfanın belleğinde tutulur.
+          Sayfayı yenileyince tekrar girmen gerekir.
+        </p>
+      </details>
+
+      <form id="connectForm" class="row wrap space">
+        <label class="grow">
+          Steam profili
+          <input id="steamInput" required placeholder="SteamID64 veya steamcommunity.com/id/...">
+        </label>
+        <button class="primary" id="connectButton" type="submit">
+          Kütüphanemi getir
+        </button>
+      </form>
+    </section>
+
+    <p id="status" role="status" aria-live="polite"></p>
+
+    <section id="librarySection" class="hidden">
+      <div id="profile" class="profile row"></div>
+      <div id="libraryStats" class="stats"></div>
+
+      <div class="toolbar">
+        <input id="gameSearch" aria-label="Oyun ara" placeholder="Kütüphanende ara...">
+        <select id="gameSort" aria-label="Oyun sıralaması">
+          <option value="time">En çok oynanan</option>
+          <option value="name">İsim: A-Z</option>
+        </select>
+      </div>
+
+      <div id="games" class="games"></div>
+      <button id="moreGames" class="space hidden">Daha fazla göster</button>
+    </section>
+
+    <section id="detailSection" class="panel hidden">
+      <div class="detail-top">
+        <div>
+          <p class="eyebrow">OYUN MERKEZİ</p>
+          <h2 id="gameTitle"></h2>
+        </div>
+        <button id="backButton">Kütüphane</button>
+      </div>
+
+      <div id="detailStats" class="stats"></div>
+      <progress id="progress" value="0" max="100" aria-label="Başarım tamamlama oranı"></progress>
+      <p id="gameWarning" class="muted small"></p>
+
+      <nav class="tabs" aria-label="Oyun bölümleri">
+        <button data-tab="achievements" class="active">Başarımlar</button>
+        <button data-tab="chat">AI rehber</button>
+        <button data-tab="maps">Haritalar</button>
+      </nav>
+
+      <div id="tab-achievements">
+        <div class="toolbar">
+          <input id="achievementSearch" aria-label="Başarım ara" placeholder="Başarım ara...">
+          <select id="achievementFilter" aria-label="Başarım filtresi">
+            <option value="all">Tüm başarımlar</option>
+            <option value="locked">Kilitli</option>
+            <option value="unlocked">Açılmış</option>
+            <option value="hidden">Gizli</option>
+          </select>
+        </div>
+
+        <label class="row">
+          <input id="spoilers" type="checkbox" style="width:auto">
+          Gizli başarım açıklamalarını göster
+        </label>
+
+        <div id="achievements" class="achievement-list space"></div>
+      </div>
+
+      <div id="tab-chat" class="hidden">
+        <div class="row wrap">
+          <span id="chatContext" class="pill">Genel oyun sohbeti</span>
+          <button id="clearContext">Genel sohbete dön</button>
+        </div>
+
+        <p class="small muted">
+          AI hata yapabilir. Kaynaklı rehber yoksa ayrıntılı çözüm doğrulanamaz. Bu sohbet web'de canlı arama yapmaz.
+        </p>
+
+        <div id="chatLog" class="chat-log" role="log" aria-live="polite"></div>
+
+        <form id="chatForm" class="chat-form">
+          <textarea id="chatInput" rows="3" maxlength="1200" required aria-label="AI mesajı" placeholder="Bu başarım için hangi bilgi mevcut?"></textarea>
+          <button id="sendButton" class="primary" type="submit">Gönder</button>
+        </form>
+      </div>
+
+      <div id="tab-maps" class="hidden">
+        <p id="mapEmpty" class="muted"></p>
+
+        <div id="mapContent" class="hidden">
+          <div class="map-tools">
+            <select id="mapSelect" aria-label="Harita seç"></select>
+            <select id="mapCategory" aria-label="Konum kategorisi"></select>
+            <button id="zoomOut" aria-label="Uzaklaştır">-</button>
+            <button id="zoomIn" aria-label="Yakınlaştır">+</button>
+          </div>
+
+          <p id="mapMeta" class="small muted"></p>
+
+          <div class="map-viewport">
+            <div id="mapStage" class="map-stage"></div>
+          </div>
+
+          <div id="markerDetail"></div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Valve veya Steam ile bağlantılı değildir.
+      Haritada bulunan eşya işaretleri bu cihazda saklanır.
+      Steam görünürlük ayarları ve API kapsamı nedeniyle bazı oyunlar
+      veya ilerleme bilgileri gelmeyebilir.
+    </footer>
+  </main>
+
+  <script>
+    const $ = id => document.getElementById(id);
+
+    const storage = {
+      get(key, fallback = "") {
+        try { return localStorage.getItem(key) ?? fallback; }
+        catch { return fallback; }
+      },
+      set(key, value) {
+        try { localStorage.setItem(key, value); }
+        catch { /* Depolama kapalı olsa da uygulama çalışır. */ }
+      }
+    };
+
+    const state = {
+      library: null,
+      game: null,
+      visibleGames: 48,
+      achievementId: null,
+      history: [],
+      chatBusy: false,
+      libraryBusy: false,
+      gameBusy: false,
+      viewVersion: 0,
+      zoom: 100,
+      found: {}
+    };
+
+    try {
+      state.found = JSON.parse(storage.get("atlas-found", "{}")) || {};
+    } catch {
+      state.found = {};
+    }
+
+    $("apiUrl").value = storage.get("atlas-api");
+    $("steamInput").value = storage.get("atlas-profile");
+
+    if (!$("apiUrl").value) $("settings").open = true;
+
+    function node(tag, className, text) {
+      const element = document.createElement(tag);
+      if (className) element.className = className;
+      if (text !== undefined) element.textContent = text;
+      return element;
+    }
+
+    function safeUrl(value) {
+      try {
+        const url = new URL(value);
+        return url.protocol === "https:" ? url.href : "";
+      } catch {
+        return "";
+      }
+    }
+
+    function link(text, url) {
+      const element = node("a", "", text);
+      const safe = safeUrl(url);
+      if (safe) {
+        element.href = safe;
+        element.target = "_blank";
+        element.rel = "noopener noreferrer";
+      }
+      return element;
+    }
+
+    function image(url, alt, className = "") {
+      const element = node("img", className);
+      element.alt = alt;
+      element.loading = "lazy";
+      element.referrerPolicy = "no-referrer";
+
+      const safe = safeUrl(url);
+      if (safe) element.src = safe;
+
+      element.onerror = () => {
+        element.removeAttribute("src");
+        element.onerror = null;
+      };
+
+      return element;
+    }
+
+    function status(text, error = false) {
+      $("status").textContent = text;
+      $("status").className = error ? "error" : "";
+    }
+
+    async function api(path, options = {}) {
+      let base;
+
+      try {
+        base = new URL($("apiUrl").value.trim());
+      } catch {
+        throw new Error("Önce bağlantı ayarlarına Worker adresini gir.");
+      }
+
+      if (base.protocol !== "https:") {
+        throw new Error("Worker adresi HTTPS olmalı.");
+      }
+
+      const token = $("accessToken").value.trim();
+
+      if (!token) {
+        throw new Error("Bağlantı ayarlarına erişim parolasını gir.");
+      }
+
+      storage.set("atlas-api", base.origin);
+
+      let response;
+
+      try {
+        response = await fetch(base.origin + path, {
+          ...options,
+          headers: {
+            ...(options.body ? { "Content-Type": "application/json" } : {}),
+            Authorization: "Bearer " + token
+          },
+          signal: AbortSignal.timeout(90000)
+        });
+      } catch {
+        throw new Error("Sunucuya ulaşılamadı. İnternetini, Worker adresini ve ALLOWED_ORIGINS ayarını kontrol et.");
+      }
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.error || "İstek başarısız: " + response.status);
+      }
+
+      return data;
+    }
+
+    $("connectForm").addEventListener("submit", async event => {
+      event.preventDefault();
+
+      if (state.libraryBusy || state.gameBusy) return;
+
+      state.libraryBusy = true;
+      $("connectButton").disabled = true;
+      status("Steam kütüphanesi getiriliyor...");
+
+      try {
+        const input = $("steamInput").value.trim();
+        const data = await api("/library?input=" + encodeURIComponent(input));
+
+        state.library = data;
+        state.game = null;
+        state.viewVersion++;
+        state.visibleGames = 48;
+
+        storage.set("atlas-profile", input);
+
+        $("detailSection").classList.add("hidden");
+        $("librarySection").classList.remove("hidden");
+
+        renderProfile();
+        renderGames();
+
+        status(data.games.length + " oyun getirildi.");
+      } catch (error) {
+        status(error.message, true);
+      } finally {
+        state.libraryBusy = false;
+        $("connectButton").disabled = false;
+      }
+    });
+
+    function renderProfile() {
+      const { player, games } = state.library;
+
+      $("profile").replaceChildren(
+        image(player.avatar, "", "avatar"),
+        link(player.name, player.url)
+      );
+
+      const hours = Math.round(
+        games.reduce((sum, game) => sum + game.minutes, 0) / 60
+      );
+
+      $("libraryStats").replaceChildren(
+        node("span", "pill", games.length + " oyun"),
+        node("span", "pill", hours.toLocaleString("tr-TR") + " saat"),
+        node("span", "pill", "Detayları açarak başarımları incele")
+      );
+    }
+
+    function renderGames() {
+      if (!state.library) return;
+
+      const query = $("gameSearch").value.toLocaleLowerCase("tr-TR");
+
+      const games = state.library.games
+        .filter(game => game.name.toLocaleLowerCase("tr-TR").includes(query))
+        .sort((a, b) =>
+          $("gameSort").value === "name"
+            ? a.name.localeCompare(b.name, "tr")
+            : b.minutes - a.minutes
+        );
+
+      const fragment = document.createDocumentFragment();
+
+      for (const game of games.slice(0, state.visibleGames)) {
+        const card = node("button", "game");
+        card.type = "button";
+
+        const copy = node("div", "copy");
+        copy.append(
+          node("h3", "", game.name),
+          node("p", "", (game.minutes / 60).toFixed(1) + " saat oynandı")
+        );
+
+        card.append(image(game.image, ""), copy);
+        card.onclick = () => openGame(game);
+        fragment.append(card);
+      }
+
+      if (!games.length) {
+        fragment.append(node("p", "muted", "Gösterilecek oyun bulunamadı."));
+      }
+
+      $("games").replaceChildren(fragment);
+      $("moreGames").classList.toggle("hidden", games.length <= state.visibleGames);
+    }
+
+    $("gameSearch").oninput = () => {
+      state.visibleGames = 48;
+      renderGames();
+    };
+
+    $("gameSort").onchange = renderGames;
+
+    $("moreGames").onclick = () => {
+      state.visibleGames += 48;
+      renderGames();
+    };
+
+    async function openGame(game) {
+      if (state.gameBusy || state.libraryBusy) return;
+
+      state.gameBusy = true;
+      $("connectButton").disabled = true;
+      status(game.name + " başarımları yükleniyor...");
+
+      try {
+        const data = await api("/game?steamid=" + state.library.steamid + "&appid=" + game.appid);
+
+        state.game = data;
+        state.viewVersion++;
+        state.achievementId = null;
+        state.history = [];
+
+        $("chatLog").replaceChildren();
+        $("chatInput").value = "";
+        $("chatContext").textContent = "Genel oyun sohbeti";
+        $("achievementSearch").value = "";
+        $("achievementFilter").value = "all";
+        $("spoilers").checked = false;
+        $("gameTitle").textContent = data.name;
+        $("gameWarning").textContent = data.warning;
+
+        const total = data.achievements.length;
+        const unlocked = data.achievements.filter(a => a.unlocked === true).length;
+        const unknown = data.achievements.filter(a => a.unlocked === null).length;
+        const rate = total ? Math.round((unlocked / total) * 100) : 0;
+
+        $("detailStats").replaceChildren(
+          node("span", "pill", total + " başarım"),
+          node("span", "pill", data.progressAvailable ? unlocked + " açılmış" : "İlerleme bilinmiyor"),
+          node("span", "pill", unknown ? unknown + " durumu bilinmeyen" : "%" + rate + " tamamlandı")
+        );
+
+        $("progress").value = rate;
+        $("progress").classList.toggle("hidden", !data.progressAvailable || unknown > 0 || total === 0);
+
+        $("librarySection").classList.add("hidden");
+        $("detailSection").classList.remove("hidden");
+
+        renderAchievements();
+        setupMaps();
+        switchTab("achievements");
+
+        status("");
+        $("detailSection").scrollIntoView({ behavior: "smooth" });
+      } catch (error) {
+        status(error.message, true);
+      } finally {
+        state.gameBusy = false;
+        $("connectButton").disabled = false;
+      }
+    }
+
+    $("backButton").onclick = () => {
+      state.viewVersion++;
+      $("detailSection").classList.add("hidden");
+      $("librarySection").classList.remove("hidden");
+    };
+
+    function switchTab(tab) {
+      for (const name of ["achievements", "chat", "maps"]) {
+        $("tab-" + name).classList.toggle("hidden", name !== tab);
+      }
+
+      document.querySelectorAll("[data-tab]").forEach(button => {
+        button.classList.toggle("active", button.dataset.tab === tab);
+      });
+    }
+
+    document.querySelectorAll("[data-tab]").forEach(button => {
+      button.onclick = () => switchTab(button.dataset.tab);
+    });
+
+    function renderAchievements() {
+      if (!state.game) return;
+
+      const query = $("achievementSearch").value.toLocaleLowerCase("tr-TR");
+      const filter = $("achievementFilter").value;
+      const spoilers = $("spoilers").checked;
+
+      const items = state.game.achievements.filter(item => {
+        const hide = item.hidden && item.unlocked !== true && !spoilers;
+        const searchable = hide ? "gizli başarım" : item.name + " " + item.description;
+
+        return searchable.toLocaleLowerCase("tr-TR").includes(query) &&
+          (filter === "all" ||
+            (filter === "locked" && item.unlocked === false) ||
+            (filter === "unlocked" && item.unlocked === true) ||
+            (filter === "hidden" && item.hidden));
+      });
+
+      const fragment = document.createDocumentFragment();
+
+      for (const item of items) {
+        const hidden = item.hidden && item.unlocked !== true && !spoilers;
+        const card = node("article", "achievement" + (item.unlocked ? " done" : ""));
+        const body = node("div", "body");
+
+        body.append(
+          node("h3", "", hidden ? "Gizli başarım" : item.name),
+          node("p", "", hidden ? "Açıklamayı görmek için gizli başarım seçeneğini aç." : item.description || "Steam açıklama sağlamıyor.")
+        );
+
+        const labels = [item.unlocked === null ? "Durum bilinmiyor" : item.unlocked ? "Açıldı" : "Kilitli"];
+
+        if (item.percent !== null) {
+          labels.push("Global %" + item.percent.toFixed(1));
+        }
+
+        if (item.unlocktime && item.unlocked) {
+          labels.push(new Date(item.unlocktime * 1000).toLocaleDateString("tr-TR"));
+        }
+
+        body.append(node("p", "small", labels.join(" | ")));
+
+        if (!hidden) {
+          const ask = node("button", "", "AI ile incele");
+          ask.onclick = () => {
+            if (state.chatBusy) {
+              status("Önce mevcut AI yanıtını bekle.", true);
+              return;
+            }
+
+            state.viewVersion++;
+            state.achievementId = item.id;
+            state.history = [];
+
+            $("chatLog").replaceChildren();
+            $("chatContext").textContent = item.name;
+            $("chatInput").value = "Bu başarım için doğrulanmış bilgiler neler?";
+            switchTab("chat");
+            $("chatInput").focus();
+          };
+
+          body.append(ask);
+
+          for (const guide of state.game.guides.filter(guide => guide.achievementId === item.id)) {
+            const box = node("div", "guide");
+           
+            box.append(
+              node("strong", "", guide.title || "Editoryal rehber"),
+              node("p", "", guide.text || ""),
+              node("p", "small", "Kontrol: " + (guide.checkedAt || "Belirtilmemiş") + " | Sürüm: " + (guide.version || "Belirtilmemiş")),
+              link("Rehber kaynağı", guide.source)
+            );
+
+            body.append(box);
+          }
+        }
+
+        card.append(
+          image(hidden ? "" : item.unlocked ? item.icon : item.iconGray, ""),
+          body
+        );
+
+        fragment.append(card);
+      }
+
+      if (!items.length) {
+        fragment.append(node("p", "muted", state.game.achievements.length ? "Filtreye uygun başarım bulunamadı." : "Steam bu oyun için başarım listesi döndürmedi."));
+      }
+
+      $("achievements").replaceChildren(fragment);
+    }
+
+    $("achievementSearch").oninput = renderAchievements;
+    $("achievementFilter").onchange = renderAchievements;
+    $("spoilers").onchange = renderAchievements;
+
+    $("clearContext").onclick = () => {
+      if (state.chatBusy) return;
+
+      state.viewVersion++;
+      state.achievementId = null;
+      state.history = [];
+
+      $("chatLog").replaceChildren();
+      $("chatContext").textContent = "Genel oyun sohbeti";
+    };
+
+    function bubble(text, role, sources = []) {
+      const item = node("div", "bubble " + role, text);
+
+      for (const source of sources) {
+        item.append(link("Bağlamdaki rehber kaynağı", source));
+      }
+
+      $("chatLog").append(item);
+      $("chatLog").scrollTop = $("chatLog").scrollHeight;
+      return item;
+    }
+
+    $("chatForm").addEventListener("submit", async event => {
+      event.preventDefault();
+
+      if (state.chatBusy || !state.game) return;
+
+      const message = $("chatInput").value.trim();
+      if (!message) return;
+
+      const version = state.viewVersion;
+
+      state.chatBusy = true;
+      $("sendButton").disabled = true;
+
+      const payload = {
+        steamid: state.library.steamid,
+        appid: state.game.appid,
+        achievementId: state.achievementId,
+        message,
+        history: state.history.slice(-6)
+      };
+
+      bubble(message, "user");
+      $("chatInput").value = "";
+
+      const waiting = bubble("Kaynak bağlamı inceleniyor...", "assistant");
+
+      try {
+        const data = await api("/chat", {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+
+        waiting.remove();
+
+        if (state.viewVersion !== version) return;
+
+        bubble(
+          data.answer + (data.hasGuide ? "" : "\n\nNot: Bu bağlamda editoryal çözüm rehberi bulunmuyor."),
+          "assistant",
+          data.sources
+        );
+
+        state.history.push(
+          { role: "user", content: message },
+          { role: "assistant", content: data.answer }
+        );
+
+        state.history = state.history.slice(-6);
+      } catch (error) {
+        waiting.remove();
+
+        if (state.viewVersion === version) {
+          bubble(error.message, "error");
+        }
+      } finally {
+        state.chatBusy = false;
+        $("sendButton").disabled = false;
+      }
+    });
+
+    function currentMap() {
+      return state.game?.maps.find(map => String(map.id) === $("mapSelect").value);
+    }
+
+    function setupMaps() {
+      const maps = state.game.maps;
+
+      $("mapContent").classList.toggle("hidden", !maps.length);
+      $("mapEmpty").textContent = maps.length
+        ? "Konumlar editoryal harita verisidir; AI tarafından üretilmez."
+        : "Bu oyun için henüz kaynaklı harita eklenmemiş. Konum uydurmak yerine harita bölümü boş bırakıldı.";
+
+      $("mapSelect").replaceChildren();
+
+      for (const map of maps) {
+        const option = node("option", "", map.name);
+        option.value = String(map.id);
+        $("mapSelect").append(option);
+      }
+
+      if (maps.length) changeMap();
+    }
+
+    function changeMap() {
+      state.zoom = 100;
+      $("markerDetail").replaceChildren();
+
+      const map = currentMap();
+      if (!map) return;
+
+      const categories = [...new Set((map.markers || []).map(marker => marker.category || "Diğer"))];
+
+      $("mapCategory").replaceChildren();
+
+      for (const category of ["Tümü", ...categories]) {
+        const option = node("option", "", category);
+        option.value = category;
+        $("mapCategory").append(option);
+      }
+
+      renderMap();
+    }
+
+    function markerKey(map, marker) {
+      return [state.library.steamid, state.game.appid, map.id, marker.id].join(":");
+    }
+
+    function renderMap() {
+      const map = currentMap();
+      if (!map) return;
+
+      const stage = $("mapStage");
+      stage.style.width = state.zoom + "%";
+
+      const img = image(map.image, map.name);
+      img.loading = "eager";
+
+      img.onerror = () => {
+        status("Harita görseli yüklenemedi. Görsel URL'sini kontrol et.", true);
+      };
+
+      stage.replaceChildren(img);
+
+      $("mapMeta").replaceChildren(
+        document.createTextNode("Yakınlaştırma: %" + state.zoom + " | Sürüm: " + (map.version || "Belirtilmemiş") + " | "),
+        link("Harita kaynağı", map.source)
+      );
+
+      for (const marker of map.markers || []) {
+        const x = Number(marker.x);
+        const y = Number(marker.y);
+
+        if (!Number.isFinite(x) || !Number.isFinite(y) || x < 0 || x > 100 || y < 0 || y > 100) continue;
+
+        const category = marker.category || "Diğer";
+
+        if ($("mapCategory").value !== "Tümü" && $("mapCategory").value !== category) continue;
+
+        const found = Boolean(state.found[markerKey(map, marker)]);
+        const button = node("button", "marker" + (found ? " found" : ""), found ? "✓" : "+");
+
+        button.style.left = x + "%";
+        button.style.top = y + "%";
+        button.title = marker.title;
+        button.setAttribute("aria-label", marker.title);
+        button.onclick = () => showMarker(map, marker);
+
+        stage.append(button);
+      }
+    }
+
+    function showMarker(map, marker) {
+      const detail = $("markerDetail");
+      const key = markerKey(map, marker);
+      const found = Boolean(state.found[key]);
+
+      const toggle = node("button", "", found ? "Bulundu işaretini kaldır" : "Buldum olarak işaretle");
+
+      toggle.onclick = () => {
+        if (state.found[key]) delete state.found[key];
+        else state.found[key] = true;
+
+        storage.set("atlas-found", JSON.stringify(state.found));
+
+        renderMap();
+        showMarker(map, marker);
+      };
+
+      detail.replaceChildren(
+        node("h3", "", marker.title),
+        node("p", "muted", marker.description || ""),
+        link("Konum kaynağı", marker.source || map.source),
+        node("p", "small muted", "Bu işaret Steam başarım durumunu değiştirmez."),
+        toggle
+      );
+    }
+
+    $("mapSelect").onchange = changeMap;
+
+    $("mapCategory").onchange = () => {
+      $("markerDetail").replaceChildren();
+      renderMap();
+    };
+
+    $("zoomIn").onclick = () => {
+      state.zoom = Math.min(400, state.zoom + 50);
+      renderMap();
+    };
+
+    $("zoomOut").onclick = () => {
+      state.zoom = Math.max(100, state.zoom - 50);
+      renderMap();
+    };
+  </script>
+</body>
+</html>
